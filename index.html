@@ -1,49 +1,165 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Verschlüsselte Strings</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #eee;
-      padding: 40px;
-    }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background-color: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    p {
-      background: #eee;
-      padding: 15px;
-      border-radius: 8px;
-      font-family: monospace;
-      word-break: break-all;
-    }
-    Rw_lafh_iiwbbpin {
-      text-align: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lernkarten Industrialisierung</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    color: #333;
+  }
+
+  .card-container {
+    perspective: 1000px;
+    position: relative;
+  }
+
+  .card {
+    width: 500px;
+    height: 320px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 500;
+    transition: transform 0.6s ease, background 0.3s;
+    transform-style: preserve-3d;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .card.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .side {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    padding: 25px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: left;
+    overflow-y: auto;
+  }
+
+  .front {
+    background: #ffffff;
+  }
+
+  .back {
+    background: #ffe0e0;
+    transform: rotateY(180deg);
+    font-size: 18px;
+    line-height: 1.4;
+  }
+
+  .instructions {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #555;
+  }
+
+  .counter {
+    position: absolute;
+    top: -40px;
+    font-size: 16px;
+    color: #444;
+  }
+
+  ul {
+    padding-left: 20px;
+    margin: 0;
+  }
+
+</style>
 </head>
 <body>
-  <div class="container">
-    <p>23 53 32 10 75</p>
-  </div>
-<p>
 
-</p>
-  <div class="container">
-    <p>🐟🐍🐟📎🐟📎🐍🐟🐟🖇🐟🐟🐟🐟📎🐟📎🐟🐍🐟📎🐟🐍🐟📎🐟🐟📎🐍🐟📎🐍🐍🐟</p>
+<div class="card-container">
+  <div class="counter" id="counter"></div>
+  <div class="card" id="card">
+    <div class="side front" id="front"></div>
+    <div class="side back" id="back"></div>
   </div>
-<p>
+</div>
 
-</p>
-  <div class="container">
-    <p>fed12611d2d8c162e34719e368f2b823bd4051762b171196a55fd975745d726f</p>
-  </div>
+<div class="instructions">Leertaste: drehen | Pfeile: nächste/vorherige Karte</div>
+
+<script>
+const cards = [
+  { front: "Wie wurde in der Landwirtschaft vor der Industrialisierung gearbeitet?", back: "<ul><li>Handarbeit und einfache Werkzeuge</li><li>Dreifelderwirtschaft</li><li>Geringe Produktivität</li></ul>" },
+  { front: "Welche Energiequellen wurden vor der industriellen Revolution genutzt?", back: "<ul><li>Muskelkraft (Mensch, Tier)</li><li>Windkraft (Windmühlen)</li><li>Wasserkraft (Wasserräder)</li><li>Holz als Brennstoff</li></ul>" },
+  { front: "Warum begann die industrielle Revolution in England?", back: "<ul><li>Reichtum und Kolonien → Kapital</li><li>Rohstoffe (Kohle, Eisen) ua. aus den Kolonien</li><li>Arbeitskräfte (Bevölkerungswachstum)</li><li>Technische Erfindungen</li><li>Politische Stabilität</li></ul>" },
+  { front: "Wichtige Erfindungen für den wirtschaftlichen Aufschwung in England", back: "<ul><li>Spinning Jenny (1764)</li><li>Waterframe (1769)</li><li>Dampfmaschine von James Watt (1769/1776 verbessert)</li><li>Power Loom (Webmaschine, 1785)</li></ul>" },
+  { front: "Vorteile der Dampfmaschine von James Watt", back: "<ul><li>Unabhängig von Wasser/Wind</li><li>Kontinuierlicher und starker Antrieb</li><li>Flexibel einsetzbar</li><li>Förderte Transport und Produktion</li></ul>" },
+  { front: "Vorteile unabhängiger Produktionsstätten", back: "<ul><li>Nicht an Flüsse gebunden</li><li>Nähe zu Arbeitskräften und Märkten</li><li>Ganzjährige Produktion</li></ul>" },
+  { front: "Wie funktioniert eine Dampfmaschine?", back: "<ul><li>Wasser erhitzen → Dampf</li><li>Dampf treibt Kolben an</li><li>Kolbenbewegung → Maschinenantrieb</li><li>Abkühlung → Dampf kondensiert</li></ul>" },
+  { front: "Auswirkungen der Massenproduktion (Schweiz)", back: "<ul><li>Günstigere Produkte</li><li>Höherer Konkurrenzdruck</li><li>Neue Absatzmärkte nötig</li><li>Beispiel: Jakob Heusser-Staub</li></ul>" },
+  { front: "Wichtigkeit von Transportmitteln in der Industrialisierung", back: "<ul><li>Rohstoff- und Produkttransport</li><li>Erreichbarkeit der Märkte</li><li>Förderung des weltweiten Handels</li></ul>" },
+  { front: "Wichtige Ereignisse der Schweizer Eisenbahngeschichte", back: "<ul><li>1847: Spanisch-Brötli-Bahn</li><li>1882: Gotthard-Tunnel</li><li>1902: Gründung der SBB</li><li>Ab 1910: Elektrifizierung</li></ul>" },
+  { front: "Drei Auswirkungen des Gotthard-Tunnels", back: "<ul><li>Direkte Nord-Süd-Verbindung</li><li>Technischer Fortschritt</li><li>Wirtschaftswachstum</li></ul>" },
+  { front: "Herausforderungen beim Bau des Gotthard-Tunnels", back: "<ul><li>Schwere Arbeitsbedingungen</li><li>Unfälle und Krankheiten</li><li>Technische Probleme</li></ul>" },
+  { front: "Rolle von Alfred Escher", back: "<ul><li>Förderte Gotthard-Projekt</li><li>Gründer der Credit Suisse (Finanzierung)</li><li>Gründung der ETH → Fachkräfte</li></ul>" },
+  { front: "Wohnbedingungen in Industriestädten", back: "<ul><li>Überfüllung</li><li>Schlechte Hygiene</li><li>Krankheiten</li></ul>" },
+  { front: "Arbeitsbedingungen in Industriestädten", back: "<ul><li>Lange Arbeitszeiten</li><li>Tiefe Löhne</li><li>Gefährliche Arbeit</li><li>Kinderarbeit</li></ul>" },
+  { front: "Was bedeutet Soziale Frage?", back: "<ul><li>Armut und Elend der Arbeiter</li><li>Forderung nach Rechten und Schutz</li><li>Entstehung der Arbeiterbewegung</li></ul>" },
+  { front: "Tagesablauf Fabrikarbeiter früher vs. heute", back: "<ul><li>Früher: 12-16 Stunden, keine Pausen, kein Schutz</li><li>Heute: 8 Stunden, Pausen, Sozialversicherung</li></ul>" },
+  { front: "Warum gab es Lohndumping?", back: "<ul><li>Grosse Arbeitskraftreserve</li><li>Konkurrenzdruck</li><li>Bessere Verfügbarkeit billiger Arbeitskräfte (Frauen, Kinder)</li></ul>" },
+  { front: "Warum arbeiteten Kinder?", back: "<ul><li>Familien brauchten Geld</li><li>Keine Schulpflicht</li><li>Geringe Löhne → Kinder als billige Arbeitskräfte</li></ul>" },
+  { front: "Tagesablauf eines Fabrikkindes", back: "<ul><li>05:00 Aufstehen</li><li>06:00 Arbeitsbeginn</li><li>12:00 kurze Pause</li><li>18:00 Feierabend</li></ul>" },
+  { front: "Unterschiedliche Bewertungen von Kinderarbeit", back: "<ul><li>Befürworter: Einkommen, Disziplin</li><li>Gegner: Gesundheitsschäden, Bildung verwehrt</li></ul>" },
+  { front: "Warum wurden Kinder oft krank (Baumwollspinnerei)?", back: "<ul><li>Staub → Lungenkrankheiten</li><li>Lange Arbeit → Erschöpfung</li><li>Gefahren → Unfälle</li></ul>" },
+  { front: "Was war das Fabrikgesetz 1877?", back: "<ul><li>Verbot Nacht- und Kinderarbeit (unter 14)</li><li>Begrenzung der Arbeitszeit</li><li>Erster gesetzlicher Schutz für Arbeiter</li></ul>" }
+];
+
+let currentCard = 0;
+let flipped = false;
+
+const card = document.getElementById('card');
+const front = document.getElementById('front');
+const back = document.getElementById('back');
+const counter = document.getElementById('counter');
+
+function updateCard() {
+  front.textContent = cards[currentCard].front;
+  back.innerHTML = cards[currentCard].back;
+  counter.textContent = `Karte ${currentCard + 1} von ${cards.length}`;
+  flipped = false;
+  card.classList.remove('flipped');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    flipped = !flipped;
+    card.classList.toggle('flipped');
+  } else if (e.code === 'ArrowRight') {
+    currentCard = (currentCard + 1) % cards.length;
+    updateCard();
+  } else if (e.code === 'ArrowLeft') {
+    currentCard = (currentCard - 1 + cards.length) % cards.length;
+    updateCard();
+  }
+});
+
+updateCard();
+</script>
+
 </body>
 </html>
+
